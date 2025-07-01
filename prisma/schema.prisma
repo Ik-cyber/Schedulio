@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  email     String   @unique
+  name      String?
+  image     String?
+  reports   Report[]
+  createdAt DateTime @default(now())
+}
+
+model Report {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  content   String
+  attachment Attachment? // optional, one report may have an attachment
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  schedules Schedule[]
+  createdAt DateTime @default(now())
+}
+
+model Schedule {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  cron      String
+  reportId  String   @db.ObjectId
+  report    Report   @relation(fields: [reportId], references: [id])
+  nextRun   DateTime
+  createdAt DateTime @default(now())
+}
+
+model Attachment {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  fileName  String
+  fileUrl   String
+  mimeType  String
+  size      Int
+  reportId  String   @unique @db.ObjectId
+  report    Report   @relation(fields: [reportId], references: [id])
+  uploadedAt DateTime @default(now())
+}

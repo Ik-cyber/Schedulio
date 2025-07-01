@@ -1,36 +1,140 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📦 Schedulio – Project Overview
 
-## Getting Started
+Schedulio is a **full-stack SaaS web application** for **automated report creation, scheduling, and delivery**.  
+Built for normal consumers & enterprise users.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 🚀 Project Goals
+
+✅ Users create rich reports (text + optional attachments)  
+✅ Schedule reports to be automatically delivered (daily, weekly, etc.)  
+✅ Deliver via email, Slack, or webhooks  
+✅ Modular, scalable, clean codebase
+
+---
+
+## 🛠 Tech Stack
+
+| Layer      | Choice                       | Notes                                      |
+| ---------- | ---------------------------- | ------------------------------------------ |
+| Frontend   | Next.js (App Router)         | Modern React, SSR, API routes              |
+| Styling    | Tailwind CSS                 | Customizable, clean UI                     |
+| Auth       | NextAuth.js                  | Social login (GitHub etc.)                 |
+| Database   | MongoDB (via Prisma)         | Flexible, schema in `prisma/schema.prisma` |
+| ORM        | Prisma                       | Type-safe DB access                        |
+| PDF Export | `pdf.ts` utils               | Generate PDFs                              |
+| Scheduling | Node cron / custom scheduler | Queue jobs                                 |
+| Delivery   | Nodemailer / Slack SDK       | Deliver reports                            |
+
+---
+
+## 📂 Folder Structure
+
+```txt
+schedulio/
+├── app/                            # Next.js app routes & pages
+│   ├── (public)/                   # Marketing: Landing, About, Pricing, Contact
+│   ├── (auth)/                     # Login, Register, Forgot password
+│   ├── (dashboard)/                # Authenticated dashboard
+│   │   ├── reports/                # List, view, edit reports
+│   │   ├── schedules/              # Manage schedules
+│   │   └── settings/               # User & app settings
+│   ├── api/                        # API routes
+│   │   ├── reports/                # CRUD reports
+│   │   ├── schedules/              # CRUD schedules
+│   │   ├── delivery/               # Trigger delivery
+│   │   └── auth/[...nextauth].ts   # NextAuth
+│   └── layout.tsx                  # Global layout with SessionProvider
+│
+├── components/                     # Reusable UI
+│   ├── ui/                         # Buttons, inputs, cards
+│   ├── dashboard/                  # Dashboard widgets
+│   └── public/                     # Marketing components
+│
+├── lib/                            # Core logic
+│   ├── auth/                       # NextAuth config & helpers
+│   ├── db.ts                       # Prisma client
+│   ├── scheduler.ts                # Scheduling
+│   └── pdf.ts                      # PDF generation
+│
+├── services/                       # Business/domain logic
+│   ├── reportService.ts
+│   ├── deliveryService.ts
+│   └── scheduleService.ts
+│
+├── prisma/                         # Prisma schema & migrations
+│   └── schema.prisma
+│
+├── public/                         # Static assets
+├── styles/                         # Tailwind & global CSS
+├── types/                          # TS types
+├── config/                         # Site & email config
+├── .env                            # Environment variables
+├── middleware.ts
+├── next.config.js
+├── tailwind.config.js
+└── package.json
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📌 Current Prisma Schema (simplified)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```prisma
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+model User {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  email     String   @unique
+  name      String?
+  image     String?
+  reports   Report[]
+  createdAt DateTime @default(now())
+}
 
-## Learn More
+model Report {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  content   String
+  attachment Attachment?     // optional
+  userId    String           @db.ObjectId
+  user      User             @relation(fields: [userId], references: [id])
+  schedules Schedule[]
+  createdAt DateTime @default(now())
+}
 
-To learn more about Next.js, take a look at the following resources:
+model Attachment {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  fileName  String
+  fileUrl   String
+  mimeType  String
+  size      Int
+  reportId  String           @unique @db.ObjectId
+  report    Report           @relation(fields: [reportId], references: [id])
+  uploadedAt DateTime @default(now())
+}
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+model Schedule {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  cron      String
+  reportId  String           @db.ObjectId
+  report    Report           @relation(fields: [reportId], references: [id])
+  nextRun   DateTime
+  createdAt DateTime @default(now())
+}
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🧪 Testing (API)
 
-## Deploy on Vercel
+#### Use Postman/ Insomia, But Still in development
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```http
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+GET    /api/reports
+POST   /api/reports
+GET    /api/reports/:id
+DELETE /api/reports/:id
+
+GET    /api/schedules
+POST   /api/schedules
+GET    /api/schedules/:id
+DELETE /api/schedules/:id
+```
