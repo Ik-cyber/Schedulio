@@ -10,7 +10,7 @@ Built for normal consumers & enterprise users.
 ✅ Users create rich reports (text + optional attachments)  
 ✅ Schedule reports to be automatically delivered (daily, weekly, etc.)  
 ✅ Deliver via email, Slack, or webhooks  
-✅ Modular, scalable, clean codebasen
+✅ Modular, scalable, clean codebase
 
 ---
 
