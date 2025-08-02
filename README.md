@@ -1,4 +1,4 @@
-# 📦 Schedulio – Project Overview
+# 📦 Schedulio – Project Overvieww
 
 Schedulio is a **full-stack SaaS web application** for **automated report creation, scheduling, and delivery**.  
 Built for normal consumers & enterprise users.
@@ -11,7 +11,6 @@ Built for normal consumers & enterprise users.
 ✅ Schedule reports to be automatically delivered (daily, weekly, etc.)  
 ✅ Deliver via email, Slack, or webhooks  
 ✅ Modular, scalable, clean codebase
-Nyxox
 
 ---
 
