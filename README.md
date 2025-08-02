@@ -11,7 +11,6 @@ Built for normal consumers & enterprise users.
 ✅ Schedule reports to be automatically delivered (daily, weekly, etc.)  
 ✅ Deliver via email, Slack, or webhooks  
 ✅ Modular, scalable, clean codebase
-Nyxox
 
 ---
 
